@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>列表展示</title>
+  <title>Show List</title>
   <style>
     body { font-family: sans-serif; padding:20px; background:#f9f9f9; }
     select { margin:10px 0; padding:5px; }
@@ -16,7 +16,7 @@
   </style>
 </head>
 <body>
-  <h2>物品库存列表</h2>
+  <h2>Goods List</h2>
   <select id="filter"><option value="">All</option></select>
   <ul id="list"></ul>
 
@@ -39,7 +39,7 @@
       const ul = document.getElementById('list');
       ul.innerHTML = '';
       data
-        .filter(i => !type || i['类型'] === type)
+        .filter(i => !type || i['Object_type'] === type)
         .forEach(i => {
           const li = document.createElement('li');
           li.innerHTML = `<span class="name">${i['Name']}</span>
