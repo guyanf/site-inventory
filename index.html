@@ -17,14 +17,14 @@
 </head>
 <body>
   <h2>物品库存列表</h2>
-  <select id="filter"><option value="">全部类型</option></select>
+  <select id="filter"><option value="">All</option></select>
   <ul id="list"></ul>
 
   <script>
     const API = 'https://script.google.com/macros/s/AKfycbxdDvv5vMVNQdqrGwNYQTYhoWVE6g-aS3dFtaf4aAKyra_nd7ymWr5b543ETJrosQVjHQ/exec';
     async function init() {
       const data = await fetch(API).then(r => r.json());
-      const types = [...new Set(data.map(i => i['类型']))];
+      const types = [...new Set(data.map(i => i['Object_type']))];
       types.forEach(t => {
         const opt = document.createElement('option');
         opt.value = t; opt.textContent = t;
@@ -42,8 +42,8 @@
         .filter(i => !type || i['类型'] === type)
         .forEach(i => {
           const li = document.createElement('li');
-          li.innerHTML = `<span class="name">${i['名称']}</span>
-                          <span class="qty">数量: ${i['数量']}</span>`;
+          li.innerHTML = `<span class="name">${i['Name']}</span>
+                          <span class="qty">Count: ${i['Object_count']}</span>`;
           ul.appendChild(li);
         });
     }
