@@ -1,54 +1,47 @@
+<!-- index.html - GitHub Pages HTML to embed in Google Sites with auto-height -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Show List</title>
+  <title>City List from Google Sheet</title>
   <style>
-    body { font-family: sans-serif; padding:20px; background:#f9f9f9; }
-    select { margin:10px 0; padding:5px; }
-    ul { list-style:none; padding:0; }
-    li {
-      background:#fff; margin:5px 0; padding:10px;
-      border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,0.1);
-    }
-    .name { font-weight:bold; }
-    .qty { float:right; color:#555; }
+    body { font-family: sans-serif; padding: 1em; margin: 0; }
+    ul { padding-left: 1.2em; }
+    li { margin: 0.3em 0; }
   </style>
+  <script>
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/1Y3P2fXvSvLUXbVoiyyLUWoBUMmYTQie4oymfqZc2dJ8/gviz/tq?tqx=out:json';
+
+    function sendHeight() {
+      const height = document.body.scrollHeight;
+      if (window.parent !== window) {
+        parent.postMessage({ type: 'embed-size', height }, '*');
+      }
+    }
+
+    async function loadData() {
+      const res = await fetch(sheetUrl);
+      const text = await res.text();
+      const json = JSON.parse(text.substring(47).slice(0, -2));
+      const rows = json.table.rows;
+
+      const list = document.getElementById('cityList');
+      rows.forEach(row => {
+        const li = document.createElement('li');
+        li.textContent = row.c[0]?.v || '(empty)';
+        list.appendChild(li);
+      });
+
+      sendHeight();
+    }
+
+    window.addEventListener('load', loadData);
+    window.addEventListener('resize', sendHeight);
+    new MutationObserver(sendHeight).observe(document.body, { childList: true, subtree: true });
+  </script>
 </head>
 <body>
-  <h2>Goods List</h2>
-  <select id="filter"><option value="">All</option></select>
-  <ul id="list"></ul>
-
-  <script>
-    const API = 'https://script.google.com/macros/s/AKfycbxdDvv5vMVNQdqrGwNYQTYhoWVE6g-aS3dFtaf4aAKyra_nd7ymWr5b543ETJrosQVjHQ/exec';
-    async function init() {
-      const data = await fetch(API).then(r => r.json());
-      const types = [...new Set(data.map(i => i['Object_type']))];
-      types.forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t; opt.textContent = t;
-        document.getElementById('filter').appendChild(opt);
-      });
-      document.getElementById('filter').onchange = () =>
-        renderList(data, document.getElementById('filter').value);
-      renderList(data, '');
-    }
-
-    function renderList(data, type) {
-      const ul = document.getElementById('list');
-      ul.innerHTML = '';
-      data
-        .filter(i => !type || i['Object_type'] === type)
-        .forEach(i => {
-          const li = document.createElement('li');
-          li.innerHTML = `<span class="name">${i['Name']}</span>
-                          <span class="qty">Count: ${i['Object_count']}</span>`;
-          ul.appendChild(li);
-        });
-    }
-
-    init();
-  </script>
+  <h2>📍 City List from Google Sheet</h2>
+  <ul id="cityList"></ul>
 </body>
 </html>
