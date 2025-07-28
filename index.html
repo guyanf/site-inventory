@@ -10,35 +10,45 @@
     li { margin: 0.3em 0; }
   </style>
   <script>
-    const sheetUrl = 'https://docs.google.com/spreadsheets/d/1Y3P2fXvSvLUXbVoiyyLUWoBUMmYTQie4oymfqZc2dJ8/gviz/tq?tqx=out:json';
+  const sheetUrl = 'https://docs.google.com/spreadsheets/d/1Y3P2fXvSvLUXbVoiyyLUWoBUMmYTQie4oymfqZc2dJ8/gviz/tq?tqx=out:json';
 
-    function sendHeight() {
-      const height = document.body.scrollHeight;
-      if (window.parent !== window) {
-        parent.postMessage({ type: 'embed-size', height }, '*');
-      }
+  function sendHeight() {
+    const height = document.body.scrollHeight;
+    if (window.parent !== window) {
+      console.log('📏 Sending height:', height);
+      parent.postMessage({ type: 'embed-size', height }, '*');
     }
+  }
 
-    async function loadData() {
-      const res = await fetch(sheetUrl);
-      const text = await res.text();
-      const json = JSON.parse(text.substring(47).slice(0, -2));
-      const rows = json.table.rows;
+  async function loadData() {
+    const res = await fetch(sheetUrl);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(47).slice(0, -2));
+    const rows = json.table.rows;
 
-      const list = document.getElementById('cityList');
-      rows.forEach(row => {
-        const li = document.createElement('li');
-        li.textContent = row.c[0]?.v || '(empty)';
-        list.appendChild(li);
-      });
+    const list = document.getElementById('cityList');
+    rows.forEach(row => {
+      const li = document.createElement('li');
+      li.textContent = row.c[0]?.v || '(empty)';
+      list.appendChild(li);
+    });
 
-      sendHeight();
-    }
+    // Use a short delay to ensure layout is complete
+    setTimeout(sendHeight, 200);
+  }
 
-    window.addEventListener('load', loadData);
-    window.addEventListener('resize', sendHeight);
-    new MutationObserver(sendHeight).observe(document.body, { childList: true, subtree: true });
-  </script>
+  window.addEventListener('load', () => {
+    loadData();
+
+    // Observe dynamic changes and keep resizing
+    new MutationObserver(() => {
+      setTimeout(sendHeight, 100);
+    }).observe(document.body, { childList: true, subtree: true });
+  });
+
+  window.addEventListener('resize', sendHeight);
+</script>
+
 </head>
 <body>
   <h2>📍 City List from Google Sheet</h2>
